@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Loader</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #a5b4fc;
+            --text-color: #1f2937;
+            --background-color: #f9fafb;
+            --error-color: #ef4444;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .loader-container {
+            text-align: center;
+            max-width: 500px;
+            padding: 2rem;
+            border-radius: 1rem;
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .loader-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .loader-subtitle {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+
+        .loader-animation {
+            position: relative;
+            height: 8px;
+            width: 100%;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .loader-progress {
+            position: absolute;
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            animation: progressAnimation 2.5s infinite ease-in-out;
+        }
+
+        .loader-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            animation: dotAnimation 1.5s infinite ease-in-out;
+        }
+
+        .dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .network-status {
+            font-size: 0.875rem;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .network-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: var(--error-color);
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        .network-icon::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: var(--error-color);
+            opacity: 0.4;
+            animation: pulse 1.5s infinite;
+        }
+
+        .retry-button {
+            margin-top: 1.5rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .retry-button:hover {
+            background-color: #4338ca;
+        }
+
+        .signature {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+            font-family: inherit;
+        }
+
+        .signature {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+            font-family: inherit;
+        }
+
+        @keyframes progressAnimation {
+            0% {
+                width: 0%;
+                left: 0;
+            }
+            50% {
+                width: 100%;
+                left: 0;
+            }
+            100% {
+                width: 0%;
+                left: 100%;
+            }
+        }
+
+        @keyframes dotAnimation {
+            0%, 100% {
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .loader-container {
+                margin: 0 1rem;
+                padding: 1.5rem;
+            }
+            
+            .loader-title {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader-container">
+        <h1 class="loader-title">Loading Content</h1>
+        <p class="loader-subtitle">Please wait while we load your content</p>
+        
+        <div class="loader-animation">
+            <div class="loader-progress"></div>
+        </div>
+        
+        <div class="loader-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        
+        <div class="network-status">
+            <div class="network-icon"></div>
+            <span>Slow network detected</span>
+        </div>
+        
+        <button class="retry-button" aria-label="Retry loading content">Try Again</button>
+    </div>
+
+    <div class="signature">Made with ❤️ by liponkoch</div>
+
+    <script>
+        class NetworkLoader {
+            constructor() {
+                this.retryButton = document.querySelector('.retry-button');
+                this.networkStatus = document.querySelector('.network-status span');
+                this.networkIcon = document.querySelector('.network-icon');
+                this.progressBar = document.querySelector('.loader-progress');
+                this.loaderContainer = document.querySelector('.loader-container');
+                this.networkMessages = [
+                    "Slow network detected",
+                    "Poor connection quality", 
+                    "Attempting to reconnect",
+                    "Loading may take longer than usual"
+                ];
+                this.progress = 0;
+                this.init();
+            }
+
+            init() {
+                this.cycleNetworkMessages();
+                this.setupRetryButton();
+                this.updateProgress();
+                this.monitorConnection();
+            }
+
+            cycleNetworkMessages() {
+                let messageIndex = 0;
+                setInterval(() => {
+                    messageIndex = (messageIndex + 1) % this.networkMessages.length;
+                    this.networkStatus.textContent = this.networkMessages[messageIndex];
+                }, 3000);
+            }
+
+            setupRetryButton() {
+                this.retryButton.addEventListener('click', () => {
+                    this.retryButton.disabled = true;
+                    this.retryButton.textContent = "Retrying...";
+                    this.resetLoader();
+                    
+                    setTimeout(() => {
+                        this.retryButton.disabled = false;
+                        this.retryButton.textContent = "Try Again";
+                        this.updateProgress();
+                    }, 2000);
+                });
+            }
+
+            updateProgress() {
+                this.progress = 0;
+                clearInterval(this.progressInterval);
+                this.progressInterval = setInterval(() => {
+                    const addProgress = Math.random() * (navigator.onLine ? 10 : 5);
+                    this.progress = Math.min(this.progress + addProgress, 100);
+                    this.progressBar.style.width = `${this.progress}%`;
+                    
+                    if (this.progress >= 100) {
+                        this.loadComplete();
+                    }
+                }, 500);
+            }
+
+            resetLoader() {
+                this.progress = 0;
+                this.progressBar.style.width = '0%';
+                clearInterval(this.progressInterval);
+            }
+
+            loadComplete() {
+                clearInterval(this.progressInterval);
+                this.loaderContainer.style.opacity = '0';
+                setTimeout(() => {
+                    this.loaderContainer.style.display = 'none';
+                    // You would trigger your actual content load here
+                    console.log('Loader complete - content should be loaded now');
+                }, 500);
+            }
+
+            monitorConnection() {
+                window.addEventListener('online', () => {
+                    this.networkIcon.style.backgroundColor = '#10b981';
+                    this.networkStatus.textContent = "Connection restored";
+                });
+                
+                window.addEventListener('offline', () => {
+                    this.networkIcon.style.backgroundColor = '#ef4444';
+                    this.networkStatus.textContent = "Connection lost";
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new NetworkLoader();
+        });
+    </script>
+</body>
+</html>
+
